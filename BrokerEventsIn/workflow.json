@@ -1,0 +1,184 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "actions": {
+            "Valid_webhook_key": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@triggerOutputs()?['headers']?['x-api-key']",
+                                "@body('Get_webhookKey')?['value']"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "Filter_events": {
+                        "type": "Query",
+                        "inputs": {
+                            "from": "@triggerBody()",
+                            "where": "@greater(length(item()?['shipmentId']), 0)"
+                        },
+                        "runAfter": {
+                            "OK": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    },
+                    "OK": {
+                        "type": "Response",
+                        "kind": "Http",
+                        "inputs": {
+                            "statusCode": 202
+                        },
+                        "operationOptions": "Asynchronous"
+                    },
+                    "For_each": {
+                        "type": "foreach",
+                        "foreach": "@outputs('Filter_events')['body']",
+                        "actions": {
+                            "Parse_JSON_event": {
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@items('For_each')",
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "shipmentId": {
+                                                "type": "string"
+                                            },
+                                            "dateTransmission": {
+                                                "type": "string"
+                                            },
+                                            "owner": {
+                                                "type": "string"
+                                            },
+                                            "order": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "eta": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "situation": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "event": {
+                                                        "type": "string"
+                                                    },
+                                                    "registrationDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "actualDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "position": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "locationReference": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "latitude": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "longitude": {
+                                                                        "type": "number"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "carrier": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "shipmentId",
+                                            "dateTransmission",
+                                            "owner",
+                                            "order",
+                                            "situation",
+                                            "carrier"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Filter_events": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Unauthorized": {
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "statusCode": 401
+                            },
+                            "operationOptions": "Asynchronous"
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Get_webhookKey": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Get_webhookKey": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "keyvault"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/secrets/@{encodeURIComponent('SANDBOX-WEBHOOK-KEY')}/value"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "secureData": {
+                        "properties": [
+                            "inputs",
+                            "outputs"
+                        ]
+                    }
+                }
+            }
+        },
+        "outputs": {},
+        "triggers": {
+            "Inbound_Event": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "method": "POST"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}

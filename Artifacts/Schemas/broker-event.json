@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "shipmentId": { "type": "string" },
+    "dateTransmission": { "type": "string" },
+    "owner": { "type": "string" },
+    "order": {
+      "type": "object",
+      "properties": {
+        "reference": { "type": "string" },
+        "eta": { "type": "string" }
+      }
+    },
+    "situation": {
+      "type": "object",
+      "properties": {
+        "event": { "type": "string" },
+        "registrationDate": { "type": "string" },
+        "actualDate": { "type": "string" },
+        "position": {
+          "type": ["object"],
+          "properties": {
+            "locationReference": { "type": "string" },
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          }
+        }
+      }
+    },
+    "carrier": { "type": "string" }
+  },
+  "required": [
+    "id",
+    "shipmentId",
+    "dateTransmission",
+    "owner",
+    "order",
+    "situation",
+    "carrier"
+  ]
+}

@@ -1,0 +1,17 @@
+$version: 1
+$input: JSON
+$output: JSON
+$sourceSchema: broker-event.json
+$targetSchema: tms-event.json
+root:
+  external_order_reference: /root/order/reference
+  created_at: /root/situation/registrationDate
+  occured_at: /root/situation/actualDate
+  source: string("BROKER")
+  location:
+    $if(not(is-null(/root/situation/position))):
+      code: /root/situation/position/locationReference
+    $if(not(is-null(/root/situation/position))):
+      latitude: /root/situation/position/latitude
+    $if(not(is-null(/root/situation/position))):
+      longitude: /root/situation/position/longitude
