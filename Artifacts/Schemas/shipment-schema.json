@@ -1,0 +1,162 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "external_reference": {
+      "type": "null"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "equipment_type": {
+      "type": "string"
+    },
+    "loading_meters": {
+      "type": "number"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "carrier": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name", "carrier"]
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "package_type": {
+            "type": "string"
+          },
+          "stackable": {
+            "type": "boolean"
+          },
+          "height": {
+            "type": "number"
+          },
+          "length": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          },
+          "length_unit": {
+            "type": "string"
+          },
+          "package_weight": {
+            "type": "number"
+          },
+          "weight_unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "total_packages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "package_type",
+          "stackable",
+          "height",
+          "length",
+          "width",
+          "length_unit",
+          "package_weight",
+          "weight_unit",
+          "description",
+          "total_packages"
+        ]
+      }
+    },
+    "stops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "address": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  }
+                },
+                "required": ["address", "city", "postal_code", "country"]
+              },
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              }
+            },
+            "required": ["code", "name", "address", "latitude", "longitude"]
+          },
+          "planned_date": {
+            "type": "string"
+          },
+          "planned_time_window_start": {
+            "type": "string"
+          },
+          "planned_time_window_end": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "location",
+          "planned_date",
+          "planned_time_window_start",
+          "planned_time_window_end"
+        ]
+      }
+    },
+    "timeline_events": {
+      "type": "null"
+    }
+  },
+  "required": [
+    "id",
+    "external_reference",
+    "mode",
+    "equipment_type",
+    "loading_meters",
+    "customer",
+    "line_items",
+    "stops",
+    "timeline_events"
+  ]
+}

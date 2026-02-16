@@ -1,0 +1,34 @@
+{
+  "managedApiConnections": {
+    "keyvault": {
+      "api": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/providers/Microsoft.Web/locations/@{appsetting('WORKFLOWS_LOCATION_NAME')}/managedApis/keyvault"
+      },
+      "connection": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/resourceGroups/@{appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')}/providers/Microsoft.Web/connections/keyvault-3"
+      },
+      "connectionRuntimeUrl": "@parameters('keyvault-1-ConnectionRuntimeUrl')",
+      "authentication": "@parameters('keyvault-1-Authentication')"
+    },
+    "keyvault-1": {
+      "api": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/providers/Microsoft.Web/locations/@{appsetting('WORKFLOWS_LOCATION_NAME')}/managedApis/keyvault"
+      },
+      "connection": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/resourceGroups/@{appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')}/providers/Microsoft.Web/connections/keyvault-4"
+      },
+      "connectionRuntimeUrl": "@parameters('keyvault-1-ConnectionRuntimeUrl')",
+      "authentication": "@parameters('keyvault-1-Authentication')"
+    },
+    "keyvault-2": {
+      "api": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/providers/Microsoft.Web/locations/@{appsetting('WORKFLOWS_LOCATION_NAME')}/managedApis/keyvault"
+      },
+      "connection": {
+        "id": "/subscriptions/@{appsetting('WORKFLOWS_SUBSCRIPTION_ID')}/resourceGroups/@{appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')}/providers/Microsoft.Web/connections/keyvault-5"
+      },
+      "connectionRuntimeUrl": "@parameters('keyvault-2-ConnectionRuntimeUrl')",
+      "authentication": "@parameters('keyvault-2-Authentication')"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "keyvault-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('keyvault-ConnectionRuntimeUrl')"
+  },
+  "keyvault-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "ManagedServiceIdentity"
+    }
+  },
+  "sandboxBaseUrl": {
+    "type": "String",
+    "value": "@appsetting('sandboxBaseUrl')"
+  },
+  "sandboxBearerSecretURI": {
+    "type": "String",
+    "value": "@appsetting('sandboxBearerSecretURI')"
+  },
+  "sandboxClientId": {
+    "type": "String",
+    "value": "@appsetting('sandboxClientId')"
+  },
+  "sandboxAppClientId": {
+    "type": "String",
+    "value": "@appsetting('sandboxAppClientId')"
+  },
+  "sandboxAppSecret": {
+    "type": "String",
+    "value": "@appsetting('sandboxAppSecret')"
+  },
+  "tenant": {
+    "type": "String",
+    "value": "@appsetting('WORKFLOWS_TENANT_ID')"
+  },
+  "keyvault-1-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('keyvault-1-ConnectionRuntimeUrl')"
+  },
+  "keyvault-1-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('keyvault-1-connectionKey')"
+    }
+  },
+  "keyvault-2-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('keyvault-2-ConnectionRuntimeUrl')"
+  },
+  "keyvault-2-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('keyvault-2-connectionKey')"
+    }
+  }
+}

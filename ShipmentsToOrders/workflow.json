@@ -1,0 +1,386 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "actions": {
+            "Get_new_shipments": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@{parameters('sandboxBaseUrl')}/api/v1/tms/shipments/new",
+                    "method": "GET",
+                    "headers": {
+                        "Authorization": "@{body('Get_Bearer_token')?['value']}"
+                    },
+                    "queries": {
+                        "limit": "10"
+                    }
+                },
+                "runAfter": {
+                    "Get_Bearer_token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Get_Bearer_token": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "keyvault"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/secrets/@{encodeURIComponent('SANDBOX-BEARER-TOKEN')}/value"
+                },
+                "runAfter": {
+                    "resultArray": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "secureData": {
+                        "properties": [
+                            "inputs",
+                            "outputs"
+                        ]
+                    }
+                }
+            },
+            "Is_successful": {
+                "type": "Scope",
+                "actions": {
+                    "Has_shipments": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "not": {
+                                        "equals": [
+                                            "@body('Get_new_shipments')",
+                                            "@null"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "Parse_shipments_JSON": {
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@body('Get_new_shipments')",
+                                    "schema": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "external_reference": {},
+                                                "mode": {
+                                                    "type": "string"
+                                                },
+                                                "equipment_type": {
+                                                    "type": "string"
+                                                },
+                                                "loading_meters": {
+                                                    "type": "number"
+                                                },
+                                                "customer": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "carrier": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "line_items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "package_type": {
+                                                                "type": "string"
+                                                            },
+                                                            "stackable": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "height": {
+                                                                "type": "number"
+                                                            },
+                                                            "length": {
+                                                                "type": "number"
+                                                            },
+                                                            "width": {
+                                                                "type": "number"
+                                                            },
+                                                            "length_unit": {
+                                                                "type": "string"
+                                                            },
+                                                            "package_weight": {
+                                                                "type": "number"
+                                                            },
+                                                            "weight_unit": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": "string"
+                                                            },
+                                                            "total_packages": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "package_type",
+                                                            "stackable",
+                                                            "height",
+                                                            "length",
+                                                            "width",
+                                                            "length_unit",
+                                                            "package_weight",
+                                                            "weight_unit",
+                                                            "description",
+                                                            "total_packages"
+                                                        ]
+                                                    }
+                                                },
+                                                "stops": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string"
+                                                            },
+                                                            "location": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "code": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "address": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "address": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "city": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "postal_code": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "country": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "latitude": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "longitude": {
+                                                                        "type": "number"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "planned_date": {
+                                                                "type": "string"
+                                                            },
+                                                            "planned_time_window_start": {
+                                                                "type": "string"
+                                                            },
+                                                            "planned_time_window_end": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type",
+                                                            "location",
+                                                            "planned_date",
+                                                            "planned_time_window_start",
+                                                            "planned_time_window_end"
+                                                        ]
+                                                    }
+                                                },
+                                                "timeline_events": {}
+                                            },
+                                            "required": [
+                                                "id",
+                                                "external_reference",
+                                                "mode",
+                                                "equipment_type",
+                                                "loading_meters",
+                                                "customer",
+                                                "line_items",
+                                                "stops",
+                                                "timeline_events"
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "For_each": {
+                                "type": "Foreach",
+                                "foreach": "@body('Parse_shipments_JSON')",
+                                "actions": {
+                                    "Transform_Shipment_to_Order": {
+                                        "type": "Liquid",
+                                        "kind": "JsonToJson",
+                                        "inputs": {
+                                            "content": "@items('For_each')",
+                                            "map": {
+                                                "source": "LogicApp",
+                                                "name": "ShipmentsToOrders.liquid"
+                                            }
+                                        }
+                                    },
+                                    "Post_order": {
+                                        "type": "Http",
+                                        "inputs": {
+                                            "uri": "@{parameters('sandboxBaseUrl')}/api/v1/broker/order",
+                                            "method": "POST",
+                                            "headers": {
+                                                "Authorization": "@{body('Get_Bearer_token')?['value']}"
+                                            },
+                                            "body": "@body('Transform_Shipment_to_Order')"
+                                        },
+                                        "runAfter": {
+                                            "Transform_Shipment_to_Order": [
+                                                "SUCCEEDED"
+                                            ]
+                                        },
+                                        "operationOptions": "DisableAsyncPattern"
+                                    },
+                                    "Append_to_resultArray": {
+                                        "type": "AppendToArrayVariable",
+                                        "inputs": {
+                                            "name": "resultArray",
+                                            "value": {
+                                                "shipmentId": "@{item()['id']}",
+                                                "statusCode": "@outputs('Post_order')?['statusCode']"
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Post_order": [
+                                                "SUCCEEDED"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "runAfter": {
+                                    "Parse_shipments_JSON": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "Filter_resultArray_errors": {
+                                "type": "Query",
+                                "inputs": {
+                                    "from": "@variables('resultArray')",
+                                    "where": "@not(equals(item()?['statusCode'], 202))"
+                                },
+                                "runAfter": {
+                                    "For_each": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "All_shipments_created": {
+                                "type": "If",
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "equals": [
+                                                "@length(body('Filter_resultArray_errors'))",
+                                                0
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "actions": {
+                                    "Success": {
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runStatus": "Succeeded"
+                                        }
+                                    }
+                                },
+                                "else": {
+                                    "actions": {}
+                                },
+                                "runAfter": {
+                                    "Filter_resultArray_errors": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            }
+                        },
+                        "else": {
+                            "actions": {
+                                "Stop": {
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Get_new_shipments": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Has_failed": {
+                "type": "Scope",
+                "actions": {},
+                "runAfter": {
+                    "Get_new_shipments": [
+                        "FAILED",
+                        "TIMEDOUT"
+                    ]
+                }
+            },
+            "resultArray": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "resultArray",
+                            "type": "array"
+                        }
+                    ]
+                },
+                "runAfter": {}
+            }
+        },
+        "outputs": {},
+        "triggers": {
+            "Every_hour": {
+                "type": "Recurrence",
+                "recurrence": {
+                    "interval": 1,
+                    "frequency": "Hour",
+                    "timeZone": "Romance Standard Time"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}

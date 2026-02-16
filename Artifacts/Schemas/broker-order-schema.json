@@ -1,0 +1,218 @@
+{
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "messageDate": {
+          "type": "string"
+        },
+        "messageFunction": {
+          "type": "number"
+        },
+        "messageReference": {
+          "type": "string"
+        },
+        "senderId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "messageDate",
+        "messageFunction",
+        "messageReference",
+        "senderId"
+      ]
+    },
+    "shipment": {
+      "type": "object",
+      "properties": {
+        "carrier": {
+          "type": "string"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "consignee": {
+                "type": "object",
+                "properties": {
+                  "address1": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "dates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "dateTime": {
+                          "type": "string"
+                        },
+                        "qualifier": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["dateTime", "qualifier"]
+                    }
+                  },
+                  "identification": {
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "postalCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address1",
+                  "city",
+                  "country",
+                  "dates",
+                  "identification",
+                  "latitude",
+                  "longitude",
+                  "name",
+                  "postalCode"
+                ]
+              },
+              "goodsDescription": {
+                "type": "string"
+              },
+              "handlingUnits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "grossWeight": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "length": {
+                      "type": "number"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "packagingQualifier": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "grossWeight",
+                    "height",
+                    "length",
+                    "width",
+                    "packagingQualifier"
+                  ]
+                }
+              },
+              "pickUp": {
+                "type": "object",
+                "properties": {
+                  "address1": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "dates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "dateTime": {
+                          "type": "string"
+                        },
+                        "qualifier": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["dateTime", "qualifier"]
+                    }
+                  },
+                  "identification": {
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "postalCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address1",
+                  "city",
+                  "country",
+                  "dates",
+                  "identification",
+                  "latitude",
+                  "longitude",
+                  "name",
+                  "postalCode"
+                ]
+              },
+              "quantity": {
+                "type": "object",
+                "properties": {
+                  "grossWeight": {
+                    "type": "number"
+                  },
+                  "loadingMeters": {
+                    "type": "number"
+                  }
+                },
+                "required": ["grossWeight", "loadingMeters"]
+              },
+              "reference": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "consignee",
+              "goodsDescription",
+              "handlingUnits",
+              "pickUp",
+              "quantity",
+              "reference"
+            ]
+          }
+        },
+        "reference": {
+          "type": "string"
+        },
+        "transportMode": {
+          "type": "string"
+        }
+      },
+      "required": ["carrier", "orders", "reference", "transportMode"]
+    }
+  },
+  "required": ["meta", "shipment"]
+}

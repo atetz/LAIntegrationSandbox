@@ -1,0 +1,23 @@
+{
+  "managedApiConnections": {
+    "keyvault": {
+      "api": {
+        "id": "/subscriptions/c80e4da0-9bc7-4519-835c-643772058ed3/providers/Microsoft.Web/locations/francecentral/managedApis/keyvault"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connection": {
+        "id": "/subscriptions/c80e4da0-9bc7-4519-835c-643772058ed3/resourceGroups/sandbox-fr/providers/Microsoft.Web/connections/keyvault-1"
+      },
+      "connectionProperties": {
+        "authentication": {
+          "audience": "https://vault.azure.net",
+          "type": "ManagedServiceIdentity"
+        }
+      },
+      "connectionRuntimeUrl": "https://953ded295907c791.18.common.logic-francecentral.azure-apihub.net/apim/keyvault/ee5c93c94ef74ef58ebec254808b2a3c"
+    }
+  },
+  "serviceProviderConnections": {}
+}

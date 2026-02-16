@@ -1,0 +1,127 @@
+{
+  "content": {
+    "id": "4ac741b2-137b-47fd-860a-05cf9cbdbadb",
+    "external_reference": null,
+    "mode": "LTL",
+    "equipment_type": "TRUCK_AND_TRAILER",
+    "loading_meters": 8.95,
+    "customer": {
+      "id": "0862fd55-8f07-42aa-bfb2-ebfd13f08ad2",
+      "name": "Jones, Nichols and Hill",
+      "carrier": "Aguilar, Newman and Ortiz Transport"
+    },
+    "line_items": [
+      {
+        "package_type": "CRATE",
+        "stackable": true,
+        "height": 35.32,
+        "length": 106.62,
+        "width": 115.71,
+        "length_unit": "CM",
+        "package_weight": 8859.65,
+        "weight_unit": "KG",
+        "description": "Bulk paper towels for institutional use",
+        "total_packages": 2
+      },
+      {
+        "package_type": "OTHER",
+        "stackable": false,
+        "height": 60.59,
+        "length": 116.67,
+        "width": 99.3,
+        "length_unit": "CM",
+        "package_weight": 8235.65,
+        "weight_unit": "KG",
+        "description": "Steel rebar for concrete reinforcement projects",
+        "total_packages": 4
+      },
+      {
+        "package_type": "DRUM",
+        "stackable": true,
+        "height": 82.36,
+        "length": 61.98,
+        "width": 118.3,
+        "length_unit": "CM",
+        "package_weight": 6270.12,
+        "weight_unit": "KG",
+        "description": "Decorative concrete pavers for landscaping projects",
+        "total_packages": 3
+      },
+      {
+        "package_type": "PLT",
+        "stackable": false,
+        "height": 176.27,
+        "length": 172.3,
+        "width": 144.27,
+        "length_unit": "CM",
+        "package_weight": 3761.36,
+        "weight_unit": "KG",
+        "description": "Liquid soap concentrate in plastic containers",
+        "total_packages": 2
+      },
+      {
+        "package_type": "PLT",
+        "stackable": true,
+        "height": 138.83,
+        "length": 55.17,
+        "width": 92.58,
+        "length_unit": "CM",
+        "package_weight": 10934.97,
+        "weight_unit": "KG",
+        "description": "Commercial air conditioning units for office buildings",
+        "total_packages": 5
+      },
+      {
+        "package_type": "PLT",
+        "stackable": true,
+        "height": 89.16,
+        "length": 167.73,
+        "width": 129.1,
+        "length_unit": "CM",
+        "package_weight": 1436.41,
+        "weight_unit": "KG",
+        "description": "Bulk spices and seasonings for food processing",
+        "total_packages": 2
+      }
+    ],
+    "stops": [
+      {
+        "type": "PICKUP",
+        "location": {
+          "code": "LOC-4920",
+          "name": "Tammerijn & Adriaansen",
+          "address": {
+            "address": "Maartjepad 90",
+            "city": "Doldersum",
+            "postal_code": "1113 EH",
+            "country": "NL"
+          },
+          "latitude": 69.5782765,
+          "longitude": 46.16862
+        },
+        "planned_date": "2026-01-30",
+        "planned_time_window_start": "06:00:00",
+        "planned_time_window_end": "17:00:00"
+      },
+      {
+        "type": "DELIVERY",
+        "location": {
+          "code": "LOC-5928",
+          "name": "Knight-Pearson",
+          "address": {
+            "address": "3 Pugh grove",
+            "city": "New Steven",
+            "postal_code": "TN15 9WA",
+            "country": "GB"
+          },
+          "latitude": -21.9088125,
+          "longitude": -67.226015
+        },
+        "planned_date": "2026-02-05",
+        "planned_time_window_start": "06:00:00",
+        "planned_time_window_end": "17:00:00"
+      }
+    ],
+    "timeline_events": null
+  }
+}

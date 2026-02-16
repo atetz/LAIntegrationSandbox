@@ -1,0 +1,104 @@
+{% comment %} get stop data by type  {% endcomment %}
+  {%- for stop in content.stops -%}
+  {%- if stop.type == 'DELIVERY' -%}
+    {% assign consignee = stop %}
+  {%- elsif stop.type == 'PICKUP' -%}
+    {% assign pickUp = stop %}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- assign grossWeight = 0.0 -%}
+{%- for line in content.line_items -%}
+  {%- assign line_weight = line.package_weight | Times: line.total_packages -%}
+  {%- assign grossWeight = grossWeight | Plus: line_weight -%}
+{%- endfor -%}
+
+{
+    "meta": {
+        "messageDate": "{{ "now" | Date: "yyyy-MM-ddTHH:mm:ssZ" }}",
+        "messageFunction": 9,
+        "messageReference": "{{ "now" | Date: "yyyy-MM-ddTHH:mm:ssZ" }}{{ content.id }}",
+        "senderId": "TMS"
+    },
+    "shipment": {
+        "carrier": "{{ content.customer.carrier }}",
+        "orders": [
+          {
+                "consignee": {
+                    "address1": "{{ consignee.location.address.address }}",
+                    "city": "{{ consignee.location.address.city }}",
+                    "country": "{{ consignee.location.address.country }}",
+                    "dates": [
+                        {
+                            "dateTime": "{{ consignee.planned_date }}T{{ consignee.planned_time_window_start }}Z",
+                            "qualifier": "PERIOD_EARLIEST"
+                        },
+                        {
+                            "dateTime": "{{ .consignee.planned_date }}T{{ consignee.planned_time_window_end }}Z",
+                            "qualifier": "PERIOD_LATEST"
+                        }
+                    ],
+                    "identification": "{{ consignee.location.code }}",
+                    "latitude": {{ consignee.location.latitude | Decimal }},
+                    "longitude": {{ consignee.location.longitude | Decimal }},
+                    "name": "{{ consignee.location.name }}",
+                    "postalCode": "{{ consignee.location.address.postal_code }}"
+                },
+                "goodsDescription": "{% for line in content.line_items %}{{ line.description }}{% unless forloop.last %}|{% endunless %}{% endfor %}",
+                "handlingUnits": [
+                                    {% comment %} duplicate line items {% endcomment %}
+                {%- for line in content.line_items -%}
+                  {% comment %} package_type mapping {% endcomment %}
+                  {%- case line.package_type -%}
+                    {%- when 'BALE' -%}{%- assign packagingQualifier = 'BL' -%}
+                    {%- when 'BOX' -%}{%- assign packagingQualifier = 'BX' -%}
+                    {%- when 'COIL' -%}{%- assign packagingQualifier = 'CL' -%}
+                    {%- when 'CYLINDER' -%}{%- assign packagingQualifier = 'CY' -%}
+                    {%- when 'DRUM' -%}{%- assign packagingQualifier = 'DR' -%}
+                    {%- when 'OTHER' -%}{%- assign packagingQualifier = 'OT' -%}
+                    {%- when 'PLT' -%}{%- assign packagingQualifier = 'PL' -%}
+                    {%- when 'CRATE' -%}{%- assign packagingQualifier = 'CR' -%}
+                  {%- endcase -%}
+
+                  {%- for i in (1..line.total_packages) -%}
+                                      {
+                                        "grossWeight": {{ line.package_weight }},
+                                        "height": {{ line.height }},
+                                        "length": {{ line.length }},
+                                        "width": {{ line.width }},
+                                        "packagingQualifier": "{{ packagingQualifier }}"
+                                      }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}{% unless forloop.last %},{% endunless %}
+                {%- endfor -%}
+                ],
+                "pickUp": {
+                    "address1": "{{ pickUp.location.address.address }}",
+                    "city": "{{ pickUp.location.address.city }}",
+                    "country": "{{ pickUp.location.address.country }}",
+                    "dates": [
+                        {
+                            "dateTime": "{{ pickUp.planned_date }}T{{ pickUp.planned_time_window_start }}Z",
+                            "qualifier": "PERIOD_EARLIEST"
+                        },
+                        {
+                            "dateTime": "{{ pickUp.planned_date }}T{{ pickUp.planned_time_window_end }}Z",
+                            "qualifier": "PERIOD_LATEST"
+                        }
+                    ],
+                    "identification": "{{ pickUp.location.code }}",
+                    "latitude": {{ pickUp.location.latitude }},
+                    "longitude": {{ pickUp.location.longitude }},
+                    "name": "{{ pickUp.location.name }}",
+                    "postalCode": "{{ pickUp.location.address.postal_code }}"
+                },
+                "quantity": {
+                    "grossWeight": {{ grossWeight | round: 2 }},
+                    "loadingMeters": {{  content.loading_meters }}
+                },
+                "reference": "{{ content.id }}"
+            }
+        ],
+        "reference": "{{ content.id }}",
+        "transportMode": "ROAD"
+    }
+}

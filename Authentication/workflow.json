@@ -1,0 +1,128 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "actions": {
+            "Get_client_secret": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "keyvault-2"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/secrets/@{encodeURIComponent('SANDBOX-CLIENT-SECRET')}/value"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "secureData": {
+                        "properties": [
+                            "inputs",
+                            "outputs"
+                        ]
+                    }
+                }
+            },
+            "Get_token": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@{parameters('sandboxBaseUrl')}/token",
+                    "method": "POST",
+                    "headers": {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    "body": "client_id=@{parameters('sandboxClientId')}&client_secret=@{body('Get_client_secret')?['value']}&grant_type=client_credentials"
+                },
+                "runAfter": {
+                    "Get_client_secret": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "operationOptions": "DisableAsyncPattern",
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Has_failed": {
+                "type": "Scope",
+                "actions": {},
+                "runAfter": {
+                    "Get_token": [
+                        "FAILED",
+                        "TIMEDOUT"
+                    ]
+                }
+            },
+            "Is_Successful": {
+                "type": "Scope",
+                "actions": {
+                    "parse_tokenReponse": {
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@body('Get_token')",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "access_token": {
+                                        "type": "string"
+                                    },
+                                    "token_type": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Update_vault_Bearer_secret": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "@parameters('sandboxBearerSecretURI')",
+                            "method": "PUT",
+                            "body": {
+                                "value": "Bearer @{body('parse_tokenReponse')?['access_token']}"
+                            },
+                            "authentication": {
+                                "type": "ActiveDirectoryOAuth",
+                                "tenant": "@{parameters('tenant')}",
+                                "audience": "https://vault.azure.net",
+                                "clientId": "@{parameters('sandboxAppClientId')}",
+                                "secret": "@{parameters('sandboxAppSecret')}"
+                            }
+                        },
+                        "runAfter": {
+                            "parse_tokenReponse": [
+                                "SUCCEEDED"
+                            ]
+                        },
+                        "operationOptions": "DisableAsyncPattern",
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Get_token": [
+                        "SUCCEEDED"
+                    ]
+                }
+            }
+        },
+        "outputs": {},
+        "triggers": {
+            "Every_10_min": {
+                "type": "Recurrence",
+                "recurrence": {
+                    "interval": 10,
+                    "frequency": "Minute",
+                    "timeZone": "Romance Standard Time"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}
