@@ -25,6 +25,16 @@
           <string key="created_at">{/*/*[@key='situation']/*[@key='registrationDate']}</string>
         </xsl:otherwise>
       </xsl:choose>
+      <string key="event_type">{let $eventType :=
+    map{
+      'ORDER_CREATED':'BOOKED',
+      'DRIVING_TO_LOAD':'DISPATCHED',
+      'ORDER_LOADED':'PICKED_UP',
+      'ETA_EVENT':'ETA_CHANGED',
+      'ORDER_DELIVERED':'DELIVERED',
+      'CANCEL_ORDER':'CANCELLED'
+    }
+ return $eventType(/root)}</string>
       <xsl:choose>
         <xsl:when test="local-name-from-QName(node-name(/*/*[@key='situation']/*[@key='actualDate'])) = 'null'">
           <null key="occured_at" />

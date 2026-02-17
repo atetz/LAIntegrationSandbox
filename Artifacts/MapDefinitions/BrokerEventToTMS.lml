@@ -6,6 +6,17 @@ $targetSchema: tms-event.json
 root:
   external_order_reference: /root/order/reference
   created_at: /root/situation/registrationDate
+  event_type: |-
+    xpath("let $eventType :=
+        map{
+          'ORDER_CREATED':'BOOKED',
+          'DRIVING_TO_LOAD':'DISPATCHED',
+          'ORDER_LOADED':'PICKED_UP',
+          'ETA_EVENT':'ETA_CHANGED',
+          'ORDER_DELIVERED':'DELIVERED',
+          'CANCEL_ORDER':'CANCELLED'
+        }
+     return $eventType(/root)")
   occured_at: /root/situation/actualDate
   source: string("BROKER")
   location:
