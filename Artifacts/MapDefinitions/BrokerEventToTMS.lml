@@ -5,9 +5,9 @@ $sourceSchema: broker-event.json
 $targetSchema: tms-event.json
 root:
   external_order_reference: /root/order/reference
-  created_at: /root/situation/registrationDate
+  created_at: concat(/root/situation/registrationDate, "$TZT")
   event_type: event-mapping(/root/situation/event)
-  occured_at: /root/situation/actualDate
+  occured_at: concat(/root/situation/actualDate, "$TZT")
   source: string("BROKER")
   location:
     $if(not(is-null(/root/situation/position))):

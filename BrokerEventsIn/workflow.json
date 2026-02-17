@@ -16,25 +16,12 @@
                     ]
                 },
                 "actions": {
-                    "Filter_events": {
-                        "type": "Query",
-                        "inputs": {
-                            "from": "@triggerBody()",
-                            "where": "@greater(length(item()?['shipmentId']), 0)"
-                        },
-                        "runAfter": {
-                            "OK": [
-                                "SUCCEEDED"
-                            ]
-                        }
-                    },
-                    "OK": {
+                    "Accepted": {
                         "type": "Response",
                         "kind": "Http",
                         "inputs": {
                             "statusCode": 202
-                        },
-                        "operationOptions": "Asynchronous"
+                        }
                     },
                     "For_each": {
                         "type": "foreach",
@@ -119,11 +106,91 @@
                                             "carrier"
                                         ]
                                     }
+                                },
+                                "runAfter": {
+                                    "Get_Bearer_token": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "Transform_broker_event_to_TMS": {
+                                "type": "Xslt",
+                                "kind": "DataMapper",
+                                "inputs": {
+                                    "content": "@body('Parse_JSON_event')",
+                                    "map": {
+                                        "source": "LogicApp",
+                                        "name": "BrokerEventToTMS.xslt"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Parse_JSON_event": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "replace_$TZT": {
+                                "type": "Compose",
+                                "inputs": "@replace(string(body('Transform_broker_event_to_TMS')), '$TZT', '')",
+                                "runAfter": {
+                                    "Transform_broker_event_to_TMS": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "POST_TMS_event": {
+                                "type": "Http",
+                                "inputs": {
+                                    "uri": "@{parameters('sandboxBaseUrl')}/api/v1/tms/event/@{body('Parse_JSON_event')['shipmentId']}",
+                                    "method": "POST",
+                                    "headers": {
+                                        "Authorization": "@{body('Get_Bearer_token')?['value']}",
+                                        "Content-Type": "application/json"
+                                    },
+                                    "body": "@outputs('replace_$TZT')"
+                                },
+                                "runAfter": {
+                                    "replace_$TZT": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "operationOptions": "DisableAsyncPattern"
+                            },
+                            "Get_Bearer_token": {
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "keyvault"
+                                        }
+                                    },
+                                    "method": "get",
+                                    "path": "/secrets/@{encodeURIComponent('SANDBOX-BEARER-TOKEN')}/value"
+                                },
+                                "runtimeConfiguration": {
+                                    "secureData": {
+                                        "properties": [
+                                            "inputs",
+                                            "outputs"
+                                        ]
+                                    }
                                 }
                             }
                         },
                         "runAfter": {
                             "Filter_events": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    },
+                    "Filter_events": {
+                        "type": "Query",
+                        "inputs": {
+                            "from": "@triggerBody()",
+                            "where": "@greater(length(item()?['shipmentId']), 0)"
+                        },
+                        "runAfter": {
+                            "Accepted": [
                                 "SUCCEEDED"
                             ]
                         }
@@ -136,8 +203,7 @@
                             "kind": "Http",
                             "inputs": {
                                 "statusCode": 401
-                            },
-                            "operationOptions": "Asynchronous"
+                            }
                         }
                     }
                 },

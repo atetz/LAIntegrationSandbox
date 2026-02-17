@@ -17,23 +17,9 @@
           <string key="external_order_reference">{/*/*[@key='order']/*[@key='reference']}</string>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:choose>
-        <xsl:when test="local-name-from-QName(node-name(/*/*[@key='situation']/*[@key='registrationDate'])) = 'null'">
-          <null key="created_at" />
-        </xsl:when>
-        <xsl:otherwise>
-          <string key="created_at">{/*/*[@key='situation']/*[@key='registrationDate']}</string>
-        </xsl:otherwise>
-      </xsl:choose>
+      <string key="created_at">{concat(/*/*[@key='situation']/*[@key='registrationDate'], '$TZT')}</string>
       <string key="event_type">{ef:event-mapping(/*/*[@key='situation']/*[@key='event'])}</string>
-      <xsl:choose>
-        <xsl:when test="local-name-from-QName(node-name(/*/*[@key='situation']/*[@key='actualDate'])) = 'null'">
-          <null key="occured_at" />
-        </xsl:when>
-        <xsl:otherwise>
-          <string key="occured_at">{/*/*[@key='situation']/*[@key='actualDate']}</string>
-        </xsl:otherwise>
-      </xsl:choose>
+      <string key="occured_at">{concat(/*/*[@key='situation']/*[@key='actualDate'], '$TZT')}</string>
       <string key="source">{string('BROKER')}</string>
       <map key="location">
         <xsl:choose>
