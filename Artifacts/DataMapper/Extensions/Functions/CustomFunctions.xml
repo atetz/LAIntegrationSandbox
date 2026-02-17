@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<customfunctions>
+   <function name="event-mapping" as="xs:string" description="Evaluates the condition and returns corresponding value.">
+      <param name="eventType" as="xs:string"/>
+   <value-of select="
+        let $eventMap := map{
+          'ORDER_CREATED':'BOOKED',
+          'DRIVING_TO_LOAD':'DISPATCHED',
+          'ORDER_LOADED':'PICKED_UP',
+          'ETA_EVENT':'ETA_CHANGED',
+          'ORDER_DELIVERED':'DELIVERED',
+          'CANCEL_ORDER':'CANCELLED'
+        }
+        return $eventMap($eventType)
+      "/>
+   </function>
+</customfunctions>

@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "properties": {
+    "external_order_reference": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "occured_at": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "required": [
+    "external_order_reference",
+    "created_at",
+    "event_type",
+    "occured_at",
+    "source"
+  ]
+}

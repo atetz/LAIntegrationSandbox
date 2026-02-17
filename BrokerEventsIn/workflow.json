@@ -1,0 +1,250 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "actions": {
+            "Valid_webhook_key": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@triggerOutputs()?['headers']?['x-api-key']",
+                                "@body('Get_webhookKey')?['value']"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "Accepted": {
+                        "type": "Response",
+                        "kind": "Http",
+                        "inputs": {
+                            "statusCode": 202
+                        }
+                    },
+                    "For_each": {
+                        "type": "foreach",
+                        "foreach": "@outputs('Filter_events')['body']",
+                        "actions": {
+                            "Parse_JSON_event": {
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@items('For_each')",
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "shipmentId": {
+                                                "type": "string"
+                                            },
+                                            "dateTransmission": {
+                                                "type": "string"
+                                            },
+                                            "owner": {
+                                                "type": "string"
+                                            },
+                                            "order": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "eta": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "situation": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "event": {
+                                                        "type": "string"
+                                                    },
+                                                    "registrationDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "actualDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "position": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "locationReference": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "latitude": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "longitude": {
+                                                                        "type": "number"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "carrier": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "shipmentId",
+                                            "dateTransmission",
+                                            "owner",
+                                            "order",
+                                            "situation",
+                                            "carrier"
+                                        ]
+                                    }
+                                },
+                                "runAfter": {
+                                    "Get_Bearer_token": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "Transform_broker_event_to_TMS": {
+                                "type": "Xslt",
+                                "kind": "DataMapper",
+                                "inputs": {
+                                    "content": "@body('Parse_JSON_event')",
+                                    "map": {
+                                        "source": "LogicApp",
+                                        "name": "BrokerEventToTMS.xslt"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Parse_JSON_event": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "replace_$TZT": {
+                                "type": "Compose",
+                                "inputs": "@replace(string(body('Transform_broker_event_to_TMS')), '$TZT', '')",
+                                "runAfter": {
+                                    "Transform_broker_event_to_TMS": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "POST_TMS_event": {
+                                "type": "Http",
+                                "inputs": {
+                                    "uri": "@{parameters('sandboxBaseUrl')}/api/v1/tms/event/@{body('Parse_JSON_event')['shipmentId']}",
+                                    "method": "POST",
+                                    "headers": {
+                                        "Authorization": "@{body('Get_Bearer_token')?['value']}",
+                                        "Content-Type": "application/json"
+                                    },
+                                    "body": "@outputs('replace_$TZT')"
+                                },
+                                "runAfter": {
+                                    "replace_$TZT": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "operationOptions": "DisableAsyncPattern"
+                            },
+                            "Get_Bearer_token": {
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "keyvault"
+                                        }
+                                    },
+                                    "method": "get",
+                                    "path": "/secrets/@{encodeURIComponent('SANDBOX-BEARER-TOKEN')}/value"
+                                },
+                                "runtimeConfiguration": {
+                                    "secureData": {
+                                        "properties": [
+                                            "inputs",
+                                            "outputs"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Filter_events": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    },
+                    "Filter_events": {
+                        "type": "Query",
+                        "inputs": {
+                            "from": "@triggerBody()",
+                            "where": "@greater(length(item()?['shipmentId']), 0)"
+                        },
+                        "runAfter": {
+                            "Accepted": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Unauthorized": {
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "statusCode": 401
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Get_webhookKey": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Get_webhookKey": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "keyvault"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/secrets/@{encodeURIComponent('SANDBOX-WEBHOOK-KEY')}/value"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "secureData": {
+                        "properties": [
+                            "inputs",
+                            "outputs"
+                        ]
+                    }
+                }
+            }
+        },
+        "outputs": {},
+        "triggers": {
+            "Inbound_Event": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "method": "POST"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}
