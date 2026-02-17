@@ -25,16 +25,7 @@
           <string key="created_at">{/*/*[@key='situation']/*[@key='registrationDate']}</string>
         </xsl:otherwise>
       </xsl:choose>
-      <string key="event_type">{let $eventType :=
-    map{
-      'ORDER_CREATED':'BOOKED',
-      'DRIVING_TO_LOAD':'DISPATCHED',
-      'ORDER_LOADED':'PICKED_UP',
-      'ETA_EVENT':'ETA_CHANGED',
-      'ORDER_DELIVERED':'DELIVERED',
-      'CANCEL_ORDER':'CANCELLED'
-    }
- return $eventType(/root)}</string>
+      <string key="event_type">{ef:event-mapping(/*/*[@key='situation']/*[@key='event'])}</string>
       <xsl:choose>
         <xsl:when test="local-name-from-QName(node-name(/*/*[@key='situation']/*[@key='actualDate'])) = 'null'">
           <null key="occured_at" />
@@ -84,4 +75,8 @@
       </map>
     </map>
   </xsl:template>
+  <xsl:function name="ef:event-mapping" as="xs:string">
+    <xsl:param name="eventType" as="xs:string" />
+    <xsl:value-of select="         let $eventMap := map{           'ORDER_CREATED':'BOOKED',           'DRIVING_TO_LOAD':'DISPATCHED',           'ORDER_LOADED':'PICKED_UP',           'ETA_EVENT':'ETA_CHANGED',           'ORDER_DELIVERED':'DELIVERED',           'CANCEL_ORDER':'CANCELLED'         }         return $eventMap($eventType)       " />
+  </xsl:function>
 </xsl:stylesheet>
